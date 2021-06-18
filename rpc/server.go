@@ -41,20 +41,26 @@ func (s *Server) handles(conn net.Conn) {
 	dec := gob.NewDecoder(conn)
 
 	var query Query
-	err := dec.Decode(&query)
-	if err != nil {
-		fmt.Println(err)
-		conn.Close()
-	}
-	answer, errA := s.rpc(&query)
-	err = enc.Encode(answer)
-	if err != nil {
-		fmt.Println(err)
-		conn.Close()
-	}
-	err = enc.Encode(Error{errA})
-	if err != nil {
-		fmt.Println(err)
-		conn.Close()
+
+	for {
+		err := dec.Decode(&query)
+		if err != nil {
+			fmt.Println(err)
+			conn.Close()
+			return
+		}
+		answer, errA := s.rpc(&query)
+		err = enc.Encode(answer)
+		if err != nil {
+			fmt.Println(err)
+			conn.Close()
+			return
+		}
+		err = enc.Encode(Error{errA})
+		if err != nil {
+			fmt.Println(err)
+			conn.Close()
+			return
+		}
 	}
 }

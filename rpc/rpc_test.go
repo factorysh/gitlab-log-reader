@@ -23,7 +23,7 @@ func TestRpc(t *testing.T) {
 				}, nil
 			}
 			if q.IP == "0.0.0.0" {
-				return nil, errors.New("Bad IP")
+				return &Answer{}, errors.New("Bad IP")
 			}
 			return &Answer{
 				Ok: false,
