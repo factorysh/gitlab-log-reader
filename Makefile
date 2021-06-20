@@ -5,3 +5,9 @@ back: bin
 
 bin:
 	mkdir -p bin
+
+test:
+	go test -cover \
+		github.com/factorysh/gitlab-log-reader/rpc \
+		github.com/factorysh/gitlab-log-reader/rg \
+		github.com/factorysh/gitlab-log-reader/state
