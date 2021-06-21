@@ -8,7 +8,7 @@ import (
 
 type State struct {
 	lock   *sync.RWMutex
-	values map[string]*Data
+	values map[interface{}]*Data
 	maxAge time.Duration
 }
 
@@ -20,7 +20,7 @@ type Data struct {
 func NewState(ctx context.Context, maxAge time.Duration) *State {
 	s := &State{
 		lock:   &sync.RWMutex{},
-		values: make(map[string]*Data),
+		values: make(map[interface{}]*Data),
 		maxAge: maxAge,
 	}
 	go func() {
@@ -43,7 +43,7 @@ func (s *State) Set(key string, value interface{}) {
 	}
 }
 
-func (s *State) SetWithTimestamp(key string, ts time.Time, value interface{}) bool {
+func (s *State) SetWithTimestamp(key interface{}, ts time.Time, value interface{}) bool {
 	delta := time.Since(ts)
 	if delta > s.maxAge { // false
 		return false
@@ -76,7 +76,7 @@ func (s *State) Get(key string) (interface{}, bool) {
 }
 
 func (s *State) gc() {
-	garbage := make([]string, 0)
+	garbage := make([]interface{}, 0)
 	s.lock.RLock()
 	for k, v := range s.values {
 		if time.Until(v.ts) > s.maxAge { // value is rotten, lets delete it
