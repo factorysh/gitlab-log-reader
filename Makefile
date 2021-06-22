@@ -11,3 +11,14 @@ test:
 		github.com/factorysh/gitlab-log-reader/rpc \
 		github.com/factorysh/gitlab-log-reader/rg \
 		github.com/factorysh/gitlab-log-reader/state
+
+
+docker-build:
+	docker run --rm \
+	-v `pwd`:/src \
+	-w /src \
+	bearstech/golang-dev \
+	make build
+
+clean:
+	rm -rf bin
