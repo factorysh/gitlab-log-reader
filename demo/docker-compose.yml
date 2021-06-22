@@ -1,0 +1,16 @@
+---
+
+services:
+    web:
+        image: bearstech/nginx
+        volumes:
+            - ./nginx.con:/etc/nginx/site-enabled/default:ro
+            - .index.html:/var/www/html/index.html:ro
+        depends_on:
+            - gitlab-log-reader
+
+    gitlab-log-reader:
+        image: gitlab-log-reader
+        command: /usr/local/bin/log-reader-ip /var/log/gitlab/production_json.log
+        volumes:
+            - ./log/:/var/log/gitlab/:ro
