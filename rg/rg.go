@@ -83,6 +83,9 @@ func (r *RG) Loop(ctx context.Context) error {
 			r.tail.Cleanup()
 			return nil
 		case line := <-r.tail.Lines:
+			if line == nil {
+				continue
+			}
 			err := r.ProcessLine(line.Text)
 			if err != nil {
 				fmt.Println(err)

@@ -12,7 +12,7 @@ import (
 )
 
 func TestTimeFormat(t *testing.T) {
-	ts, err := time.Parse(timeFormat, "2021-06-13T20:26:56.186Z")
+	ts, err := time.Parse(TimeFormat, "2021-06-13T20:26:56.186Z")
 	assert.NoError(t, err)
 	assert.Equal(t, 2021, ts.Year())
 }
@@ -28,7 +28,7 @@ func TestRG(t *testing.T) {
 	assert.NoError(t, err)
 	_, ok := rg.state.Get(state.Key{"factory/gitlab-py", "192.99.5.48", ""})
 	assert.False(t, ok)
-	err = rg.ProcessLine(fmt.Sprintf(`{"method":"GET","path":"/factory/gitlab-py.git/info/refs","format":"*/*","controller":"Repositories::GitHttpController","action":"info_refs","status":200,"time":"%s","params":[{"key":"service","value":"git-upload-pack"},{"key":"repository_path","value":"factory/gitlab-py.git"}],"remote_ip":"78.40.125.12","user_id":3,"username":"bdenard","ua":"gitlab-runner 13.12.0 linux/amd64","correlation_id":"01F829RKZS28Y8Q7JKGE4XSTXH","meta.user":"bdenard","meta.project":"factory/gitlab-py","meta.root_namespace":"factory","meta.caller_id":"Repositories::GitHttpController#info_refs","meta.remote_ip":"78.40.125.12","meta.feature_category":"source_code_management","meta.client_id":"user/33","redis_calls":1,"redis_duration_s":0.000425,"redis_read_bytes":109,"redis_write_bytes":44,"redis_cache_calls":1,"redis_cache_duration_s":0.000425,"redis_cache_read_bytes":109,"redis_cache_write_bytes":44,"db_count":7,"db_write_count":0,"db_cached_count":1,"cpu_s":0.042879,"db_duration_s":0.00661,"view_duration_s":0.00044,"duration_s":0.03741}`, time.Now().Format(timeFormat)))
+	err = rg.ProcessLine(fmt.Sprintf(`{"method":"GET","path":"/factory/gitlab-py.git/info/refs","format":"*/*","controller":"Repositories::GitHttpController","action":"info_refs","status":200,"time":"%s","params":[{"key":"service","value":"git-upload-pack"},{"key":"repository_path","value":"factory/gitlab-py.git"}],"remote_ip":"78.40.125.12","user_id":3,"username":"bdenard","ua":"gitlab-runner 13.12.0 linux/amd64","correlation_id":"01F829RKZS28Y8Q7JKGE4XSTXH","meta.user":"bdenard","meta.project":"factory/gitlab-py","meta.root_namespace":"factory","meta.caller_id":"Repositories::GitHttpController#info_refs","meta.remote_ip":"78.40.125.12","meta.feature_category":"source_code_management","meta.client_id":"user/33","redis_calls":1,"redis_duration_s":0.000425,"redis_read_bytes":109,"redis_write_bytes":44,"redis_cache_calls":1,"redis_cache_duration_s":0.000425,"redis_cache_read_bytes":109,"redis_cache_write_bytes":44,"db_count":7,"db_write_count":0,"db_cached_count":1,"cpu_s":0.042879,"db_duration_s":0.00661,"view_duration_s":0.00044,"duration_s":0.03741}`, time.Now().Format(TimeFormat)))
 	assert.NoError(t, err)
 	v, ok := rg.state.Get(
 		state.Key{
