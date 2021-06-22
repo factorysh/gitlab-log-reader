@@ -12,14 +12,14 @@ func TestState(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 	s := NewState(ctx, 100*time.Millisecond)
-	ok := s.SetWithTimestamp("b", time.Now().Add(-101*time.Millisecond), nil)
+	ok := s.SetWithTimestamp(Key{"b", "", ""}, time.Now().Add(-101*time.Millisecond), nil)
 	assert.False(t, ok)
 
-	s.Set("a", 42)
-	v, ok := s.Get("a")
+	s.Set(Key{"a", "", ""}, 42)
+	v, ok := s.Get(Key{"a", "", ""})
 	assert.True(t, ok)
 	assert.Equal(t, 42, v)
 	time.Sleep(101 * time.Millisecond)
-	_, ok = s.Get("a")
+	_, ok = s.Get(Key{"a", "", ""})
 	assert.False(t, ok)
 }

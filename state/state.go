@@ -6,9 +6,11 @@ import (
 	"time"
 )
 
+type Key [3]string
+
 type State struct {
 	lock   *sync.RWMutex
-	values map[interface{}]*Data
+	values map[Key]*Data
 	maxAge time.Duration
 }
 
@@ -20,7 +22,7 @@ type Data struct {
 func NewState(ctx context.Context, maxAge time.Duration) *State {
 	s := &State{
 		lock:   &sync.RWMutex{},
-		values: make(map[interface{}]*Data),
+		values: make(map[Key]*Data),
 		maxAge: maxAge,
 	}
 	go func() {
@@ -36,14 +38,14 @@ func NewState(ctx context.Context, maxAge time.Duration) *State {
 	return s
 }
 
-func (s *State) Set(key string, value interface{}) {
+func (s *State) Set(key [3]string, value interface{}) {
 	ok := s.SetWithTimestamp(key, time.Now(), value)
 	if !ok {
 		panic("We all gonna die")
 	}
 }
 
-func (s *State) SetWithTimestamp(key interface{}, ts time.Time, value interface{}) bool {
+func (s *State) SetWithTimestamp(key [3]string, ts time.Time, value interface{}) bool {
 	delta := time.Since(ts)
 	if delta > s.maxAge { // false
 		return false
@@ -57,7 +59,7 @@ func (s *State) SetWithTimestamp(key interface{}, ts time.Time, value interface{
 	return true
 }
 
-func (s *State) Get(key string) (interface{}, bool) {
+func (s *State) Get(key [3]string) (interface{}, bool) {
 	s.lock.RLock()
 	v, ok := s.values[key]
 	if !ok {
@@ -76,7 +78,7 @@ func (s *State) Get(key string) (interface{}, bool) {
 }
 
 func (s *State) gc() {
-	garbage := make([]interface{}, 0)
+	garbage := make([]Key, 0)
 	s.lock.RLock()
 	for k, v := range s.values {
 		if time.Until(v.ts) > s.maxAge { // value is rotten, lets delete it

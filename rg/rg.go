@@ -18,12 +18,6 @@ type RG struct {
 	parser *fastjson.Parser
 }
 
-type Hit struct {
-	User   string
-	Remote string
-	Ua     string
-}
-
 func New(ctx context.Context, path string) (*RG, error) {
 	rg := &RG{
 		state:  state.NewState(ctx, 3*time.Hour),
@@ -51,17 +45,26 @@ func (r *RG) processLine(line string) error {
 	if err != nil {
 		return err
 	}
+	project := value.GetStringBytes("meta.project")
+	if len(project) == 0 {
+		return nil
+	}
 	user := value.GetStringBytes("meta.user")
 	if len(user) == 0 {
 		return nil
 	}
 	remote := value.GetStringBytes("meta.remote_ip")
-	ua := value.GetStringBytes("ua")
-	r.state.SetWithTimestamp(string(remote), ts, Hit{
-		User:   string(user),
-		Remote: string(remote),
-		Ua:     string(ua),
-	})
+	//ua := value.GetStringBytes("ua")
+	r.state.SetWithTimestamp(
+		state.Key{
+			string(project),
+			string(remote),
+			"",
+			//Ua:      string(ua),
+		},
+		ts,
+		nil,
+	)
 	return nil
 }
 
@@ -81,7 +84,7 @@ func (r *RG) Loop(ctx context.Context) error {
 	}
 }
 
-func (r *RG) IPExists(ip string) bool {
-	_, ok := r.state.Get(ip)
+func (r *RG) Exists(project, remote string) bool {
+	_, ok := r.state.Get(state.Key{project, remote, ""})
 	return ok
 }
