@@ -10,12 +10,20 @@ import (
 	"github.com/valyala/fastjson"
 )
 
-const timeFormat = "2006-01-02T15:04:05.000Z"
+const TimeFormat = "2006-01-02T15:04:05.000Z"
 
 type RG struct {
 	tail   *tail.Tail
 	state  *state.State
 	parser *fastjson.Parser
+}
+
+func NewRG(tail *tail.Tail, state *state.State) *RG {
+	return &RG{
+		tail:   tail,
+		state:  state,
+		parser: &fastjson.Parser{},
+	}
 }
 
 func New(ctx context.Context, path string) (*RG, error) {
@@ -35,13 +43,13 @@ func New(ctx context.Context, path string) (*RG, error) {
 	return rg, nil
 }
 
-func (r *RG) processLine(line string) error {
+func (r *RG) ProcessLine(line string) error {
 	value, err := r.parser.Parse(line)
 	if err != nil {
 		return err
 	}
 	tsRaw := value.GetStringBytes("time")
-	ts, err := time.Parse(timeFormat, string(tsRaw))
+	ts, err := time.Parse(TimeFormat, string(tsRaw))
 	if err != nil {
 		return err
 	}
@@ -75,7 +83,7 @@ func (r *RG) Loop(ctx context.Context) error {
 			r.tail.Cleanup()
 			return nil
 		case line := <-r.tail.Lines:
-			err := r.processLine(line.Text)
+			err := r.ProcessLine(line.Text)
 			if err != nil {
 				fmt.Println(err)
 				continue
