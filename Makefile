@@ -20,5 +20,11 @@ docker-build:
 	bearstech/golang-dev \
 	make build
 
+docker-image:
+	docker build \
+		--build-arg uid=`id -u` \
+		-t gitlab-log-reader \
+		.
+
 clean:
 	rm -rf bin
