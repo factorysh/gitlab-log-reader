@@ -1,7 +1,7 @@
-build: back
+build: fat
 
-back: bin
-	go build -o bin/log-reader-back ./cmd/back/
+fat: bin
+	go build -o bin/log-reader-ip ./cmd/fat/
 
 bin:
 	mkdir -p bin
