@@ -14,3 +14,10 @@ services:
         command: /usr/local/bin/log-reader-ip /var/log/gitlab/production_json.log
         volumes:
             - ./log/:/var/log/gitlab/:ro
+
+    logger:
+        image: gitlab-log-reader-mockup
+        environment:
+            LOG_PATH: /var/log/gitlab/production_json.log
+        volumes:
+            - ./log/:/var/log/gitlab/
