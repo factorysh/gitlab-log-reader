@@ -65,18 +65,14 @@ LINE = json.loads(
 
 log = open(os.getenv("LOG_PATH", "/tmp/glr.log"), 'w+')
 
-def line():
-    # 2006-01-02T15:04:05.000Z
-    v = copy.deepcopy(LINE)
-    v["time"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    return json.dumps(v)
-
 
 @app.route("/")
 def hello_world():
     v = copy.deepcopy(LINE)
     v["time"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000Z")
     v["remote_ip"] = request.access_route[0]
+    v["meta.remote_ip"] = v["remote_ip"]
+    v["ua"] = request.headers["user-agent"]
     json.dump(v, log, sort_keys=True, separators=(',', ':'))
     log.write("\n")
     log.flush()
