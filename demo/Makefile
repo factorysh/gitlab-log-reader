@@ -1,5 +1,5 @@
 up: log
-	docker-compose up --remove-orphans
+	docker-compose up -d web
 
 log:
 	mkdir -p log
