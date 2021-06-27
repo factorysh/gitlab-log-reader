@@ -80,4 +80,4 @@ def hello_world():
 
 
 if __name__ == "__main__":
-    run_simple("localhost", 5000, app)
+    run_simple("0.0.0.0", 5000, app)
