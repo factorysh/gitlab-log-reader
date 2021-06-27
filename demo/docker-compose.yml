@@ -4,8 +4,8 @@ services:
     web:
         image: bearstech/nginx
         volumes:
-            - ./nginx.con:/etc/nginx/site-enabled/default:ro
-            - .index.html:/var/www/html/index.html:ro
+          - ./nginx.conf:/etc/nginx/sites-enabled/default:ro
+          - ./www:/var/www/html:ro
         depends_on:
             - gitlab-log-reader
 
@@ -14,6 +14,8 @@ services:
         command: /usr/local/bin/log-reader-ip /var/log/gitlab/production_json.log
         volumes:
             - ./log/:/var/log/gitlab/:ro
+        depends_on:
+            - logger
 
     logger:
         image: gitlab-log-reader-mockup
@@ -21,3 +23,11 @@ services:
             LOG_PATH: /var/log/gitlab/production_json.log
         volumes:
             - ./log/:/var/log/gitlab/
+
+    client_white:
+        image: bearstech/debian:11
+        command: curl -v logger:5000
+
+    client_web:
+        image: bearstech/debian:11
+        command: curl -vL web:8000/
