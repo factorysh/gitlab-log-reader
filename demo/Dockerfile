@@ -13,4 +13,5 @@ COPY --from=dev /opt/logger /opt/logger
 ARG uid=500
 
 USER ${uid}
+EXPOSE 5000
 CMD [ "/opt/logger/venv/bin/python", "/opt/logger/fake_log.py" ]
