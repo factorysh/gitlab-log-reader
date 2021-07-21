@@ -1,7 +1,7 @@
 build: fat
 
 fat: bin
-	go build -o bin/log-reader-ip ./cmd/fat/
+	CGO_ENABLED=0 go build -o bin/log-reader-ip ./cmd/fat/
 
 bin:
 	mkdir -p bin
