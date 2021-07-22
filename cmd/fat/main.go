@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 
+	"github.com/apex/log"
 	"github.com/factorysh/gitlab-log-reader/rg"
 	"github.com/factorysh/gitlab-log-reader/web"
 )
@@ -13,11 +13,12 @@ import (
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	r, err := rg.New(ctx, os.Args[1])
 
+	r, err := rg.New(ctx, os.Args[1])
 	if err != nil {
 		panic(err)
 	}
+	log.WithField("file", os.Args[1]).Info("Reading log file")
 
 	ctx2, cancel2 := context.WithCancel(context.Background())
 	defer cancel2()
@@ -27,6 +28,6 @@ func main() {
 		Addr:    "0.0.0.0:8000",
 		Handler: web.NewAPI(r),
 	}
-	fmt.Println("Listen", s.Addr)
+	log.WithField("addr", s.Addr).Info("Ready for listen")
 	s.ListenAndServe()
 }

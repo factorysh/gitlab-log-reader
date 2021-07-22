@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/apex/log"
 	"github.com/factorysh/gitlab-log-reader/rg"
 )
 
@@ -21,12 +22,16 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "Log-Reader")
 	fmt.Println("headers", r.Header)
 	if r.Method != "GET" {
-		w.WriteHeader(400)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if a.rg.Exists(r.Header.Get("x-project"), r.Header.Get("x-remote")) {
-		w.WriteHeader(200)
-	} else {
-		w.WriteHeader(403)
+
+	p := r.Header.Get("x-project")
+	rip := r.Header.Get("x-remote")
+	code := http.StatusForbidden
+	if a.rg.Exists(p, rip) {
+		code = http.StatusOK
 	}
+	w.WriteHeader(code)
+	log.WithFields(log.Fields{"project": p, "remote ip": rip})
 }
