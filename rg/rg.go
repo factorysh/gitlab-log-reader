@@ -43,6 +43,11 @@ func New(ctx context.Context, path string) (*RG, error) {
 	return rg, nil
 }
 
+// State return current rg state
+func (r *RG) State() map[state.Key]*state.Data {
+	return r.state.Values()
+}
+
 func (r *RG) ProcessLine(line string) error {
 	value, err := r.parser.Parse(line)
 	if err != nil {

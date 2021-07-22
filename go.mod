@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/apex/log v1.9.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/influxdata/tail v1.0.0
 	github.com/stretchr/testify v1.7.0
