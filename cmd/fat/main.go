@@ -26,7 +26,7 @@ func main() {
 
 	s := &http.Server{
 		Addr:    "0.0.0.0:8000",
-		Handler: web.NewAPI(r),
+		Handler: web.NewAPI(r, web.Auth),
 	}
 	log.WithField("addr", s.Addr).Info("Ready for listen")
 	s.ListenAndServe()
