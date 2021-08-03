@@ -7,25 +7,34 @@ import (
 	"github.com/factorysh/gitlab-log-reader/rg"
 )
 
+type httpHandler func(*API, http.ResponseWriter, *http.Request)
+
 type API struct {
-	rg *rg.RG
+	rg      *rg.RG
+	handler httpHandler
 }
 
-func NewAPI(_rg *rg.RG) *API {
+func NewAPI(_rg *rg.RG, _handler httpHandler) *API {
 	return &API{
-		rg: _rg,
+		rg:      _rg,
+		handler: _handler,
 	}
 }
 
 func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	a.handler(a, w, r)
+}
+
+// Auth responds to nginx auth requests
+func Auth(a *API, w http.ResponseWriter, r *http.Request) {
 	p := r.Header.Get("x-project")
 	rip := r.Header.Get("x-remote")
 	w.Header().Set("Server", "Log-Reader")
 	if r.Method != "GET" {
+		w.WriteHeader(http.StatusBadRequest)
 		log.WithFields(log.Fields{
 			"remote ip": rip,
-			"method":    r.Method}).Info("Received invalid method")
-		w.WriteHeader(http.StatusBadRequest)
+			"method":    r.Method}).Info("Auth handler received invalid method")
 		return
 	}
 

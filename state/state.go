@@ -8,9 +8,11 @@ import (
 
 type Key [3]string
 
+type StateValues map[Key]*Data
+
 type State struct {
 	lock   *sync.RWMutex
-	values map[Key]*Data
+	values StateValues
 	maxAge time.Duration
 }
 
@@ -19,10 +21,14 @@ type Data struct {
 	value interface{}
 }
 
+func (d *Data) Ts() time.Time {
+	return d.ts
+}
+
 func NewState(ctx context.Context, maxAge time.Duration) *State {
 	s := &State{
 		lock:   &sync.RWMutex{},
-		values: make(map[Key]*Data),
+		values: make(StateValues),
 		maxAge: maxAge,
 	}
 	go func() {
@@ -43,6 +49,10 @@ func (s *State) Set(key [3]string, value interface{}) {
 	if !ok {
 		panic("We all gonna die")
 	}
+}
+
+func (s *State) Values() StateValues {
+	return s.values
 }
 
 func (s *State) SetWithTimestamp(key [3]string, ts time.Time, value interface{}) bool {
