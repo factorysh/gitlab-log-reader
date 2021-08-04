@@ -1,39 +1,37 @@
 ---
-
 services:
+  # Plain old Nginx server, using auth_request on http://gitlab-log-reader:8000
+  web:
+    image: bearstech/nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/sites-enabled/default:ro
+      - ./www:/var/www/html:ro
+    depends_on:
+      - gitlab-log-reader
 
-    # Plain old Nginx server, using auth_request on http://gitlab-log-reader:8000
-    web:
-        image: bearstech/nginx
-        volumes:
-          - ./nginx.conf:/etc/nginx/sites-enabled/default:ro
-          - ./www:/var/www/html:ro
-        depends_on:
-            - gitlab-log-reader
+  # This service watch log, and auth Nginx requests
+  gitlab-log-reader:
+    image: gitlab-log-reader
+    command: /usr/local/bin/log-reader-ip /var/log/gitlab/production_json.log
+    volumes:
+      - ./log/:/var/log/gitlab/:ro
+    depends_on:
+      - logger
 
-    # This service watch log, and auth Nginx requests
-    gitlab-log-reader:
-        image: gitlab-log-reader
-        command: /usr/local/bin/log-reader-ip /var/log/gitlab/production_json.log
-        volumes:
-            - ./log/:/var/log/gitlab/:ro
-        depends_on:
-            - logger
+  # Mockup who writes log
+  logger:
+    image: gitlab-log-reader-mockup
+    environment:
+      LOG_PATH: /var/log/gitlab/production_json.log
+    volumes:
+      - ./log/:/var/log/gitlab/
 
-    # Mockup who writes log
-    logger:
-        image: gitlab-log-reader-mockup
-        environment:
-            LOG_PATH: /var/log/gitlab/production_json.log
-        volumes:
-            - ./log/:/var/log/gitlab/
+  # When you call it, your IP is withelisted
+  client_white:
+    image: bearstech/debian:11
+    command: curl -v logger:5000
 
-    # When you call it, your IP is withelisted
-    client_white:
-        image: bearstech/debian:11
-        command: curl -v logger:5000
-
-    # Call the main website, it can answer 401 or 200
-    client_web:
-        image: bearstech/debian:11
-        command: curl -vL web:8000/
+  # Call the main website, it can answer 401 or 200
+  client_web:
+    image: bearstech/debian:11
+    command: curl -vL web:8000/
