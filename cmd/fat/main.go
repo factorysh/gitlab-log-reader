@@ -29,6 +29,7 @@ func main() {
 		Handler: web.NewAPI(r, web.Admin),
 	}
 	log.WithField("addr", adm.Addr).Info("Admin endpoint ready for listen")
+	go adm.ListenAndServe()
 
 	s := &http.Server{
 		Addr:    "0.0.0.0:8000",
