@@ -19,6 +19,7 @@ type StateResult struct {
 }
 
 func toStateResults(entries state.StateValues) (allowed []StateResult) {
+	allowed = make([]StateResult, 0)
 	for k, v := range entries {
 		access := v.Ts()
 		allowed = append(allowed, StateResult{
