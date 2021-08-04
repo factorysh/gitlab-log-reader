@@ -35,3 +35,7 @@ services:
   client_web:
     image: bearstech/debian:11
     command: curl -vL web:8000/
+
+  admin_allowlist:
+    image: bearstech/debian:11
+    command: curl -vL gitlab-log-reader:8042/allowlist
