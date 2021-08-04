@@ -8,6 +8,7 @@ import (
 
 	"github.com/apex/log"
 	"github.com/factorysh/gitlab-log-reader/state"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // StateResult wraps all data about a state value
@@ -52,6 +53,9 @@ func Admin(a *API, w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusOK)
 		w.Write(data)
+	case "/metrics":
+		h := promhttp.Handler()
+		h.ServeHTTP(w, r)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 	}

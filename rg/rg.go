@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/factorysh/gitlab-log-reader/metrics"
 	"github.com/factorysh/gitlab-log-reader/state"
 	"github.com/influxdata/tail"
 	"github.com/valyala/fastjson"
@@ -26,9 +27,9 @@ func NewRG(tail *tail.Tail, state *state.State) *RG {
 	}
 }
 
-func New(ctx context.Context, path string) (*RG, error) {
+func New(ctx context.Context, path string, m *metrics.Gatherer) (*RG, error) {
 	rg := &RG{
-		state:  state.NewState(ctx, 3*time.Hour),
+		state:  state.NewState(ctx, 3*time.Hour, m),
 		parser: &fastjson.Parser{},
 	}
 	var err error

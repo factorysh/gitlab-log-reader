@@ -5,13 +5,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/factorysh/gitlab-log-reader/metrics"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestState(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
-	s := NewState(ctx, 100*time.Millisecond)
+	s := NewState(ctx, 100*time.Millisecond, metrics.Collector)
 	ok := s.SetWithTimestamp(Key{"b", "", ""}, time.Now().Add(-101*time.Millisecond), nil)
 	assert.False(t, ok)
 
