@@ -35,6 +35,7 @@ func TestAuthAPIAndMetrics(t *testing.T) {
 	r, err := c.Do(req)
 	assert.NoError(t, err)
 	assert.Equal(t, 200, r.StatusCode)
+	assert.Contains(t, r.Header, "Expires")
 	// not ok, 403
 	req, err = http.NewRequest(http.MethodGet, ts.URL, nil)
 	req.Header.Set("x-project", "factory/gitlab-py")

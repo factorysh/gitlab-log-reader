@@ -49,10 +49,14 @@ func NewState(ctx context.Context, maxAge time.Duration, m *metrics.Gatherer) *S
 }
 
 func (s *State) Set(key [3]string, value interface{}) {
-	ok := s.SetWithTimestamp(key, time.Now(), value)
+	ok := s.SetWithTimestamp(key, time.Now().UTC(), value)
 	if !ok {
 		panic("We all gonna die")
 	}
+}
+
+func (s *State) MaxAge() time.Duration {
+	return s.maxAge
 }
 
 func (s *State) Values() StateValues {
@@ -90,6 +94,24 @@ func (s *State) Get(key [3]string) (interface{}, bool) {
 	}
 	s.lock.RUnlock()
 	return v.value, true
+}
+
+func (s *State) GetData(key [3]string) (*Data, bool) {
+	s.lock.RLock()
+	v, ok := s.values[key]
+	if !ok {
+		s.lock.RUnlock()
+		return nil, false
+	}
+	if -time.Until(v.ts) > s.maxAge { // value is rotten, lets delete it
+		s.lock.RUnlock()
+		s.lock.Lock()
+		delete(s.values, key)
+		s.lock.Unlock()
+		return nil, false
+	}
+	s.lock.RUnlock()
+	return v, true
 }
 
 func (s *State) gc() {

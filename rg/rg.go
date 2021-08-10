@@ -105,3 +105,14 @@ func (r *RG) Exists(project, remote string) bool {
 	_, ok := r.state.Get(state.Key{project, remote, ""})
 	return ok
 }
+
+func (r *RG) Expires(project, remote string) (time.Duration, bool) {
+	data, ok := r.state.GetData(state.Key{project, remote, ""})
+	if !ok {
+		return 0, false
+	}
+
+	// data.Ts() ----> time.Now() ----> data.Ts+s.MaxAge
+	// remaining duration is maxAge - delta(now, data.Ts())
+	return r.state.MaxAge() - time.Since(data.Ts()), true
+}
