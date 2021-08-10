@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthAPI(t *testing.T) {
+func TestAuthAPIAndMetrics(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	a := &API{
@@ -42,4 +42,8 @@ func TestAuthAPI(t *testing.T) {
 	r, err = c.Do(req)
 	assert.NoError(t, err)
 	assert.Equal(t, 403, r.StatusCode)
+	// metrics test
+	assert.Equal(t, float64(1), metrics.GetMetricValue(metrics.Collector.StatusForbiddenRespCounter))
+	assert.Equal(t, float64(1), metrics.GetMetricValue(metrics.Collector.StatusOkRespCounter))
+	assert.Equal(t, float64(2), metrics.GetMetricValue(metrics.Collector.AuthRequestCounter))
 }

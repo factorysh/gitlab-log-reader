@@ -3,6 +3,7 @@ package metrics
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	promclient "github.com/prometheus/client_model/go"
 )
 
 // Collector is the main prometheus data gatherer
@@ -38,4 +39,14 @@ type Gatherer struct {
 	AuthRequestCounter         prometheus.Counter
 	StatusOkRespCounter        prometheus.Counter
 	StatusForbiddenRespCounter prometheus.Counter
+}
+
+// GetMetricValue read counter value from a prometheus collector
+// kudos https://stackoverflow.com/questions/57952695/prometheus-counters-how-to-get-current-value-with-golang-client
+func GetMetricValue(collector prometheus.Counter) float64 {
+	var m promclient.Metric
+	c := make(chan prometheus.Metric, 1)
+	collector.Collect(c)
+	_ = (<-c).Write(&m)
+	return *m.Counter.Value
 }
