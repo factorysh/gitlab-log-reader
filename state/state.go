@@ -4,6 +4,8 @@ import (
 	"context"
 	"sync"
 	"time"
+
+	"github.com/factorysh/gitlab-log-reader/metrics"
 )
 
 type Key [3]string
@@ -11,9 +13,10 @@ type Key [3]string
 type StateValues map[Key]*Data
 
 type State struct {
-	lock   *sync.RWMutex
-	values StateValues
-	maxAge time.Duration
+	lock    *sync.RWMutex
+	values  StateValues
+	maxAge  time.Duration
+	metrics *metrics.Gatherer
 }
 
 type Data struct {
@@ -25,11 +28,12 @@ func (d *Data) Ts() time.Time {
 	return d.ts
 }
 
-func NewState(ctx context.Context, maxAge time.Duration) *State {
+func NewState(ctx context.Context, maxAge time.Duration, m *metrics.Gatherer) *State {
 	s := &State{
-		lock:   &sync.RWMutex{},
-		values: make(StateValues),
-		maxAge: maxAge,
+		lock:    &sync.RWMutex{},
+		values:  make(StateValues),
+		maxAge:  maxAge,
+		metrics: m,
 	}
 	go func() {
 		for {
@@ -66,6 +70,7 @@ func (s *State) SetWithTimestamp(key [3]string, ts time.Time, value interface{})
 		ts:    ts,
 		value: value,
 	}
+	s.metrics.AllowListSize.Inc()
 	return true
 }
 
@@ -101,6 +106,7 @@ func (s *State) gc() {
 		defer s.lock.Unlock()
 		for _, k := range garbage {
 			delete(s.values, k)
+			s.metrics.AllowListSize.Dec()
 		}
 	}
 }

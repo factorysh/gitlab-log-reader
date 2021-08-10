@@ -39,3 +39,7 @@ services:
   admin_allowlist:
     image: bearstech/debian:11
     command: curl -vL gitlab-log-reader:8042/allowlist
+
+  admin_metrics:
+    image: bearstech/debian:11
+    command: curl -vL gitlab-log-reader:8042/metrics

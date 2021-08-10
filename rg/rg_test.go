@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/factorysh/gitlab-log-reader/metrics"
 	"github.com/factorysh/gitlab-log-reader/state"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fastjson"
@@ -21,7 +22,7 @@ func TestRG(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	rg := &RG{
-		state:  state.NewState(ctx, 3*time.Hour),
+		state:  state.NewState(ctx, 3*time.Hour, metrics.Collector),
 		parser: &fastjson.Parser{},
 	}
 	err := rg.ProcessLine(`{"method":"GET","path":"/ndupond/eBPF_demo/tree/0db310cfd5486f1b7c63c5e5b543dc921ec34c30/demo-wordpress/wordpress/wp-includes/Text/Diff","format":"html","controller":"Projects::TreeController","action":"show","status":200,"time":"2021-06-13T20:26:56.186Z","params":[{"key":"namespace_id","value":"ndubouilh"},{"key":"project_id","value":"eBPF_demo"},{"key":"id","value":"0db310cfd5486f1b7c63c5e5b543dc921ec34c30/demo-wordpress/wordpress/wp-includes/Text/Diff"}],"remote_ip":"192.99.5.48","user_id":null,"username":null,"ua":"Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)","correlation_id":"01F83GWKM1AE0W2BMPHJBX3S4B","meta.project":"ndupond/eBPF_demo","meta.root_namespace":"ndupond","meta.caller_id":"Projects::TreeController#show","meta.remote_ip":"192.99.5.48","meta.feature_category":"source_code_management","meta.client_id":"ip/192.99.5.48","gitaly_calls":2,"gitaly_duration_s":0.009537,"redis_calls":13,"redis_duration_s":0.003593,"redis_read_bytes":1372,"redis_write_bytes":2328,"redis_cache_calls":13,"redis_cache_duration_s":0.003593,"redis_cache_read_bytes":1372,"redis_cache_write_bytes":2328,"db_count":11,"db_write_count":0,"db_cached_count":1,"cpu_s":0.168202,"db_duration_s":0.00702,"view_duration_s":0.11873,"duration_s":0.16273}`)
