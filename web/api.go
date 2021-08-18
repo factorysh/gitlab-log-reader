@@ -30,7 +30,7 @@ func NewAPI(_rg *rg.RG, _handler httpHandler, m *metrics.Gatherer) *API {
 func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	a.sentryHandler.HandleFunc(func(w http.ResponseWriter, r *http.Request) {
 		a.handler(a, w, r)
-	})
+	}).ServeHTTP(w, r)
 }
 
 // Auth responds to nginx auth requests
