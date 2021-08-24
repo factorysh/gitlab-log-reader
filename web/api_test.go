@@ -22,7 +22,7 @@ func TestAuthAPIAndMetrics(t *testing.T) {
 		handler: Auth,
 		metrics: metrics.Collector,
 	}
-	err := a.rg.ProcessLine(fmt.Sprintf(`{"method":"GET","path":"/factory/gitlab-py.git/info/refs","format":"*/*","controller":"Repositories::GitHttpController","action":"info_refs","status":200,"time":"%s","params":[{"key":"service","value":"git-upload-pack"},{"key":"repository_path","value":"factory/gitlab-py.git"}],"remote_ip":"78.40.125.12","user_id":3,"username":"bdenard","ua":"gitlab-runner 13.12.0 linux/amd64","correlation_id":"01F829RKZS28Y8Q7JKGE4XSTXH","meta.user":"bdenard","meta.project":"factory/gitlab-py","meta.root_namespace":"factory","meta.caller_id":"Repositories::GitHttpController#info_refs","meta.remote_ip":"78.40.125.12","meta.feature_category":"source_code_management","meta.client_id":"user/33","redis_calls":1,"redis_duration_s":0.000425,"redis_read_bytes":109,"redis_write_bytes":44,"redis_cache_calls":1,"redis_cache_duration_s":0.000425,"redis_cache_read_bytes":109,"redis_cache_write_bytes":44,"db_count":7,"db_write_count":0,"db_cached_count":1,"cpu_s":0.042879,"db_duration_s":0.00661,"view_duration_s":0.00044,"duration_s":0.03741}`, time.Now().Format(rg.TimeFormat)))
+	err := a.rg.ProcessLine(fmt.Sprintf(`{"method":"GET","path":"/factory/gitlab-py.git/info/refs","format":"*/*","controller":"Repositories::GitHttpController","action":"info_refs","status":200,"time":"%s","params":[{"key":"service","value":"git-upload-pack"},{"key":"repository_path","value":"factory/gitlab-py.git"}],"remote_ip":"78.40.125.12","user_id":3,"username":"bdenard","ua":"gitlab-runner 13.12.0 linux/amd64","correlation_id":"01F829RKZS28Y8Q7JKGE4XSTXH","meta.user":"bdenard","meta.project":"factory/gitlab-py","meta.root_namespace":"factory","meta.caller_id":"Repositories::GitHttpController#info_refs","meta.remote_ip":"78.40.125.12","meta.feature_category":"source_code_management","meta.client_id":"user/33","redis_calls":1,"redis_duration_s":0.000425,"redis_read_bytes":109,"redis_write_bytes":44,"redis_cache_calls":1,"redis_cache_duration_s":0.000425,"redis_cache_read_bytes":109,"redis_cache_write_bytes":44,"db_count":7,"db_write_count":0,"db_cached_count":1,"cpu_s":0.042879,"db_duration_s":0.00661,"view_duration_s":0.00044,"duration_s":0.03741}`, time.Now().UTC().Format(rg.TimeFormat)))
 	assert.NoError(t, err)
 	ts := httptest.NewServer(a)
 	defer ts.Close()
@@ -35,6 +35,11 @@ func TestAuthAPIAndMetrics(t *testing.T) {
 	r, err := c.Do(req)
 	assert.NoError(t, err)
 	assert.Equal(t, 200, r.StatusCode)
+	assert.Contains(t, r.Header, "Expires")
+	h, _ := r.Header["Expires"]
+	d, err := time.ParseDuration(h[0])
+	assert.NoError(t, err)
+	assert.WithinDuration(t, time.Now().Add(3*time.Hour), time.Now().Add(d), 2*time.Second)
 	// not ok, 403
 	req, err = http.NewRequest(http.MethodGet, ts.URL, nil)
 	req.Header.Set("x-project", "factory/gitlab-py")

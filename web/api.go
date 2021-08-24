@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/apex/log"
 	"github.com/factorysh/gitlab-log-reader/metrics"
@@ -43,7 +44,9 @@ func Auth(a *API, w http.ResponseWriter, r *http.Request) {
 	}
 
 	code := http.StatusForbidden
-	if a.rg.Exists(p, rip) {
+	if exp, valid := a.rg.Expires(p, rip); valid {
+		exp.Truncate(time.Second)
+		w.Header().Set("Expires", exp.String())
 		code = http.StatusOK
 		a.metrics.StatusOkRespCounter.Inc()
 	} else {
