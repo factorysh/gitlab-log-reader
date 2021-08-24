@@ -58,7 +58,7 @@ func Admin(a *API, w http.ResponseWriter, r *http.Request) {
 		if flag.Lookup("test.v") == nil {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
-			panic("Testing is panic is handled correctly by Sentry")
+			panic("Testing if panic is handled correctly by Sentry")
 		}
 	case "/metrics":
 		h := promhttp.Handler()
