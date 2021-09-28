@@ -7,26 +7,31 @@ import (
 	"github.com/apex/log"
 	"github.com/factorysh/gitlab-log-reader/metrics"
 	"github.com/factorysh/gitlab-log-reader/rg"
+	sentryhttp "github.com/getsentry/sentry-go/http"
 )
 
 type httpHandler func(*API, http.ResponseWriter, *http.Request)
 
 type API struct {
-	rg      *rg.RG
-	handler httpHandler
-	metrics *metrics.Gatherer
+	rg            *rg.RG
+	handler       httpHandler
+	metrics       *metrics.Gatherer
+	sentryHandler *sentryhttp.Handler
 }
 
 func NewAPI(_rg *rg.RG, _handler httpHandler, m *metrics.Gatherer) *API {
 	return &API{
-		rg:      _rg,
-		handler: _handler,
-		metrics: m,
+		rg:            _rg,
+		handler:       _handler,
+		metrics:       m,
+		sentryHandler: sentryhttp.New(sentryhttp.Options{}),
 	}
 }
 
 func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	a.handler(a, w, r)
+	a.sentryHandler.HandleFunc(func(w http.ResponseWriter, r *http.Request) {
+		a.handler(a, w, r)
+	}).ServeHTTP(w, r)
 }
 
 // Auth responds to nginx auth requests

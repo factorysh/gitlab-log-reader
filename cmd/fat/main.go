@@ -4,14 +4,28 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/apex/log"
 	"github.com/factorysh/gitlab-log-reader/metrics"
 	"github.com/factorysh/gitlab-log-reader/rg"
 	"github.com/factorysh/gitlab-log-reader/web"
+	"github.com/getsentry/sentry-go"
 )
 
+var sentryTimeout = 2 * time.Second
+
 func main() {
+	if os.Getenv("SENTRY_DSN") == "" {
+		log.Warn("No SENTRY_DSN environment variable specified")
+	}
+
+	err := sentry.Init(sentry.ClientOptions{})
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer sentry.Flush(sentryTimeout)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

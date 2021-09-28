@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"flag"
 	"net/http"
 	"strings"
 	"time"
@@ -53,6 +54,12 @@ func Admin(a *API, w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusOK)
 		w.Write(data)
+	case "/sentry/hidden/test":
+		if flag.Lookup("test.v") == nil {
+			w.WriteHeader(http.StatusNotFound)
+		} else {
+			panic("Testing if panic is handled correctly by Sentry")
+		}
 	case "/metrics":
 		h := promhttp.Handler()
 		h.ServeHTTP(w, r)
